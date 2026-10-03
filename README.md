@@ -4,7 +4,7 @@
 
 ![mendingitem](img/mendingitem.png)
 
-## 2.2.2 / Minecraft 1.20–26.3
+## 2.2.3 / Minecraft 1.20–26.3
 
 - 同一个 JAR 面向 **Paper 1.20–26.3**，基于范围内最早的 `paper-api:1.20-R0.1-SNAPSHOT` 编译，不使用 NMS 或 CraftBukkit 内部类。
 - 插件使用 **Java 17 字节码**，可在 Java 17 / 21 / 25 上加载；服务端本身的 Java 要求仍须满足。此版本使用 Paper 的 Adventure 物品文本 API，不声明纯 Spigot、CraftBukkit 或 Folia 兼容性。
@@ -16,7 +16,7 @@
 
 ## 安装 / 升级
 
-1. 停服，将 `plugins` 内旧版插件 JAR 替换为 `slow-mending-re-2.2.2.jar`，保留原来的 `plugins/slow_mending_re/` 配置目录。
+1. 停服，将 `plugins` 内旧版插件 JAR 替换为 `slow-mending-re-2.2.3.jar`，保留原来的 `plugins/slow_mending_re/` 配置目录。
 2. 按服务端版本选择 Java：1.20–1.20.4 使用 Java 17；1.20.5–1.21.11 使用 Java 21；26.x 使用 Java 25。
 3. 配置缺少新增选项时会使用默认值，已有配置文件不会被覆盖。
 
@@ -36,7 +36,7 @@
 
 `api-version: '1.20'` 表示插件使用的最低 API，不是把新服务端降级为 1.20。Java 17 字节码也不代表新服务端能用 Java 17 启动。Paper 兼容分支可按其自身的 API/Java 要求使用，完整实测范围以 [TESTING.md](TESTING.md) 为准。
 
-2.2.0 曾使用 26.3 API 和 Java 25，不能用于旧服；需要跨版本支持请更换为 2.2.2。PDC 键及配置路径没有变化，可以直接保留 2.2.0 / 2.2.1 的插件数据。插件支持多个版本并不意味着 Minecraft 世界或物品格式支持降级。
+2.2.0 曾使用 26.3 API 和 Java 25，不能用于旧服；需要跨版本支持请更换为 2.2.3。PDC 键及配置路径没有变化，可以直接保留 2.2.0 / 2.2.1 / 2.2.2 的插件数据。插件支持多个版本并不意味着 Minecraft 世界或物品格式支持降级。
 
 ## 配置与计数规则
 
@@ -83,13 +83,15 @@ Setting:
 | `/slmend info <player> [main\|off]` | 查看物品次数；无记录时显示配置初始值 |
 | `/slmend set <player> <次数或模式> [main\|off]` | 设置次数或模式，可初始化尚未修补的耐久物品 |
 | `/slmend add <player> <num> [main\|off]` | 增加或扣减次数 |
-| `/slmend givecard <player> <quantity> <frequency> <set\|add>` | 向目标背包发放拓展卡；控制台可用 |
+| `/slmend givecard <set\|add> <player> <quantity> <frequency>` | 先选择模式，再向目标背包发放拓展卡；控制台可用 |
 | `/slmend reload` | 验证并重载配置；失败时保持旧的有效设置 |
 | `/slmend help`、`/slmend version` | 帮助及真实构建版本 |
 
 `slowmending.bypass` 默认 **false**（包括 OP），仅在明确赋予后生效。
 
-例如：`/slmend set Steve 无限`、`/slmend set Steve 无限不减速 off`、`/slmend set Steve 禁用`。发放模式卡可用 `/slmend givecard Steve 1 无限不减速 set`。Tab 补全会提示模式名称；`add` 只接受增减整数，例如 `/slmend add Steve -1` 表示扣除一次。
+例如：`/slmend set Steve 无限`、`/slmend set Steve 无限不减速 off`、`/slmend set Steve 禁用`。发放模式卡可用 `/slmend givecard set Steve 1 无限不减速`；发放增加 100 次的卡可用 `/slmend givecard add Steve 1 100`。Tab 补全依次提示模式、在线玩家、数量和对应模式的数值；`add` 只接受增减整数，例如 `/slmend add Steve -1` 表示扣除一次。
+
+旧发卡写法 `/slmend givecard Steve 1 无限不减速 set` 仍可执行，方便保留已有脚本；帮助和 Tab 补全以模式在前的新写法为准。
 
 发卡数量为 1–2304，并受实际背包空间限制；按物品最大堆叠量拆分。空间不足时整次拒绝，不覆盖主手，也不丢弃到地面。
 
@@ -114,4 +116,4 @@ ExpansionCard:
 mvn --batch-mode clean verify
 ```
 
-产物：`target/slow-mending-re-2.2.2.jar`。测试说明见 [TESTING.md](TESTING.md)，更新记录见 [CHANGELOG.md](CHANGELOG.md)。
+产物：`target/slow-mending-re-2.2.3.jar`。测试说明见 [TESTING.md](TESTING.md)，更新记录见 [CHANGELOG.md](CHANGELOG.md)。

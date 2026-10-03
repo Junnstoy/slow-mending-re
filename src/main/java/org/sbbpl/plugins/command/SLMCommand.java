@@ -45,15 +45,12 @@ public class SLMCommand implements CommandExecutor {
                         + " | Paper 1.20–26.3 | 原作者 super_boy_520");
                 case "set", "add", "info" -> edit(sender, sub, args);
                 case "givecard" -> {
-                    require(args.length == 5, "/slmend givecard <player> <数量> <次数或模式> <set|add>");
-                    Player target = player(args[1]);
-                    int quantity = Integer.parseInt(args[2]);
-                    require(args[4].equalsIgnoreCase("set") || args[4].equalsIgnoreCase("add"), "模式必须为 set 或 add。");
-                    boolean setMode = args[4].equalsIgnoreCase("set");
-                    int frequency = setMode ? MendCount.parseSetting(args[3]) : Integer.parseInt(args[3]);
-                    com_give.give(target, frequency, setMode, quantity);
-                    sender.sendMessage("§b已给予 " + target.getName() + " " + quantity + " 张拓展卡："
-                            + (setMode ? "设置为 " + MendCount.format(frequency) : MendCount.formatDelta(frequency)) + "。");
+                    GiveCardArguments card = GiveCardArguments.parse(args);
+                    Player target = player(card.playerName());
+                    com_give.give(target, card.frequency(), card.setMode(), card.quantity());
+                    sender.sendMessage("§b已给予 " + target.getName() + " " + card.quantity() + " 张拓展卡："
+                            + (card.setMode() ? "设置为 " + MendCount.format(card.frequency())
+                            : MendCount.formatDelta(card.frequency())) + "。");
                 }
                 default -> {
                     var config = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "command.yml"));
@@ -61,6 +58,7 @@ public class SLMCommand implements CommandExecutor {
                     // Include this for existing command.yml files, which are intentionally not overwritten.
                     sender.sendMessage("§b/slmend info <player> [main|off] - 查看修补次数及模式。");
                     sender.sendMessage("§b/slmend set <player> <次数|无限|无限不减速|禁用> [main|off]");
+                    sender.sendMessage("§b" + GiveCardArguments.USAGE + " - 发放拓展卡，先选择 set 或 add。");
                     sender.sendMessage("§bset 模式的拓展卡也支持上述名称；add 只接受增减整数，例如 -1 表示减少 1 次。");
                 }
             }

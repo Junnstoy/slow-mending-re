@@ -1,5 +1,15 @@
 # Paper 1.20–26.3 兼容验证
 
+## 2.2.3 发卡命令顺序回归
+
+验证日期：2026-10-04。保留 Paper 1.20 API 和 Java 17 字节码，全部主插件类的 major version 为 **61**。
+
+- 单元测试：**51 项通过，0 失败 / 0 错误**，覆盖新旧发卡参数顺序、大小写、中文状态、负数扣减、玩家名与模式同名及非法参数。
+- 同一个 2.2.3 JAR 在 **Paper 1.20（构建 17 / Java 17）、1.20.6（构建 151 / Java 21）、26.3（构建 143 / Java 25）各通过 77 项服务端断言，共 231 项**。
+- 新增服务端回归验证模式在前的补全、数量位置、`set` / `add` 各自的值提示和帮助。玩家查找由 Bukkit 提供，未使用真实客户端执行发卡命令。
+
+本次回归上述 3 个代表版本；实际结果及 JAR SHA-256 见 [results-2.2.3.json](integration-tests/results-2.2.3.json)。较早完整 21 版本矩阵保留在下方。
+
 ## 2.2.2 文字状态更新回归
 
 验证日期：2026-10-04。沿用 Paper 1.20 API、Java 17 字节码，全部主插件类的 major version 为 **61**。本地使用 Maven 3.9.9 / Temurin 25.0.4.1 构建。
@@ -79,7 +89,7 @@ mvn --batch-mode clean install
 mvn --batch-mode -f integration-tests/pom.xml clean package
 ```
 
-主插件：`target/slow-mending-re-2.2.2.jar`。GitHub Actions 分别以 JDK 17、21、25 构建并运行单元测试，上传一个 Java 17 字节码的通用插件产物。
+主插件：`target/slow-mending-re-2.2.3.jar`。GitHub Actions 分别以 JDK 17、21、25 构建并运行单元测试，上传一个 Java 17 字节码的通用插件产物。
 
 ## 重现服务端矩阵
 

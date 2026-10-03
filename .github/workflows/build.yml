@@ -30,6 +30,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: matrix.java == '17'
         with:
-          name: slow-mending-re-2.2.2-paper-1.20-26.3
-          path: target/slow-mending-re-2.2.2.jar
+          name: slow-mending-re-2.2.3-paper-1.20-26.3
+          path: target/slow-mending-re-2.2.3.jar
           if-no-files-found: error

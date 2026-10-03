@@ -235,9 +235,19 @@ public final class ServerTests extends JavaPlugin {
                 "set completion suggests named states");
         var addChoices = completer.onTabComplete(player, null, "slmend", new String[]{"add", "SlowMendingTest", ""});
         check(addChoices.contains("-1") && !addChoices.contains("无限"), "add completion suggests numeric deltas");
+        check(completer.onTabComplete(player, null, "slmend", new String[]{"givecard", ""}).equals(List.of("set", "add")),
+                "givecard completes mode before player");
+        check(completer.onTabComplete(player, null, "slmend", new String[]{"givecard", "set", "Steve", ""})
+                .equals(List.of("1", "16", "64")), "givecard completes quantity after player");
+        var cardSetChoices = completer.onTabComplete(player, null, "slmend", new String[]{"givecard", "SET", "Steve", "1", ""});
+        check(cardSetChoices.containsAll(List.of("无限", "无限不减速", "禁用")), "givecard set completes named modes");
+        var cardAddChoices = completer.onTabComplete(player, null, "slmend", new String[]{"givecard", "add", "Steve", "1", ""});
+        check(cardAddChoices.contains("-1") && !cardAddChoices.contains("无限"), "givecard add only completes numeric deltas");
         new SLMCommand().onCommand(player, null, "slmend", new String[]{"help"});
         check(messages.stream().anyMatch(message -> message.contains("<次数|无限|无限不减速|禁用>")),
                 "existing help configuration receives named-state instructions");
+        check(messages.stream().anyMatch(message -> message.contains("givecard <set|add> <player> <数量>")),
+                "help includes mode-first givecard syntax");
 
         meta = card.getItemMeta();
         meta.setLore(List.of("cosmetic text changed"));
