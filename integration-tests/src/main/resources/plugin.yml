@@ -1,0 +1,5 @@
+name: SlowMendingServerTests
+version: '${project.version}'
+main: org.sbbpl.plugins.test.ServerTests
+api-version: '26.3'
+depend: [slow_mending_re]
