@@ -45,23 +45,27 @@ public class SLMCommand implements CommandExecutor {
                         + " | Paper 1.20–26.3 | 原作者 super_boy_520");
                 case "set", "add", "info" -> edit(sender, sub, args);
                 case "givecard" -> {
-                    require(args.length == 5, "/slmend givecard <player> <quantity> <frequency> <set|add>");
+                    require(args.length == 5, "/slmend givecard <player> <数量> <次数或模式> <set|add>");
                     Player target = player(args[1]);
                     int quantity = Integer.parseInt(args[2]);
-                    int frequency = Integer.parseInt(args[3]);
                     require(args[4].equalsIgnoreCase("set") || args[4].equalsIgnoreCase("add"), "模式必须为 set 或 add。");
-                    com_give.give(target, frequency, args[4].equalsIgnoreCase("set"), quantity);
-                    sender.sendMessage("§b已给予 " + target.getName() + " " + quantity + " 张拓展卡。");
+                    boolean setMode = args[4].equalsIgnoreCase("set");
+                    int frequency = setMode ? MendCount.parseSetting(args[3]) : Integer.parseInt(args[3]);
+                    com_give.give(target, frequency, setMode, quantity);
+                    sender.sendMessage("§b已给予 " + target.getName() + " " + quantity + " 张拓展卡："
+                            + (setMode ? "设置为 " + MendCount.format(frequency) : MendCount.formatDelta(frequency)) + "。");
                 }
                 default -> {
                     var config = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "command.yml"));
                     for (String line : config.getStringList("Command.text.help")) sender.sendMessage(line);
                     // Include this for existing command.yml files, which are intentionally not overwritten.
-                    sender.sendMessage("§b/slmend info <player> [main|off] - 查看剩余次数（-1 无限，-2 无限且不减速，-3 禁止）。");
+                    sender.sendMessage("§b/slmend info <player> [main|off] - 查看修补次数及模式。");
+                    sender.sendMessage("§b/slmend set <player> <次数|无限|无限不减速|禁用> [main|off]");
+                    sender.sendMessage("§bset 模式的拓展卡也支持上述名称；add 只接受增减整数，例如 -1 表示减少 1 次。");
                 }
             }
         } catch (NumberFormatException e) {
-            sender.sendMessage("§c数量和次数必须为 32 位整数。");
+            sender.sendMessage("§c数量及 add 增减量必须为 32 位整数；只有 set 支持修补模式名称。");
         } catch (IllegalArgumentException e) {
             sender.sendMessage("§c" + e.getMessage());
         }
@@ -72,7 +76,8 @@ public class SLMCommand implements CommandExecutor {
         boolean info = mode.equals("info");
         int base = info ? 2 : 3;
         require(args.length == base || args.length == base + 1,
-                "/slmend " + mode + " <player> " + (info ? "" : "<num> ") + "[main|off]");
+                "/slmend " + mode + " <player> " + (info ? "" : mode.equals("set")
+                        ? "<次数|无限|无限不减速|禁用> " : "<增减次数> ") + "[main|off]");
         Player target = player(args[1]);
         String hand = args.length > base ? args[base].toLowerCase(Locale.ROOT) : "main";
         require(hand.equals("main") || hand.equals("off"), "手持位置必须为 main 或 off。");
@@ -83,7 +88,7 @@ public class SLMCommand implements CommandExecutor {
         var oldNames = Slow_mending_re.getOld_Mend_Frequency_Lore_Name();
         int value;
         if (mode.equals("set")) {
-            value = MendCount.validate(Integer.parseInt(args[2]));
+            value = MendCount.parseSetting(args[2]);
         } else {
             try {
                 value = MendingItem.getRemainderMendFrequency(meta, prefix, oldNames);
@@ -98,7 +103,8 @@ public class SLMCommand implements CommandExecutor {
             if (hand.equals("main")) target.getInventory().setItemInMainHand(item);
             else target.getInventory().setItemInOffHand(item);
         }
-        sender.sendMessage("§b" + target.getName() + " " + hand + " 剩余修补次数：" + value);
+        sender.sendMessage("§b" + target.getName() + " " + (hand.equals("main") ? "主手" : "副手")
+                + " 剩余修补次数：" + MendCount.format(value));
     }
 
     private static Player player(String name) {

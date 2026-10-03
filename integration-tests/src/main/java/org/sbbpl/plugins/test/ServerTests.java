@@ -23,12 +23,15 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.sbbpl.plugins.*;
 import org.sbbpl.plugins.ExpansionCard.*;
 import org.sbbpl.plugins.command.commands.com_give;
+import org.sbbpl.plugins.command.CommandTabCompleter;
+import org.sbbpl.plugins.command.SLMCommand;
 
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -42,6 +45,7 @@ public final class ServerTests extends JavaPlugin {
     private final MendEventListener success = new MendEventListener(bound -> 0);
     private final MendEventListener failure = new MendEventListener(bound -> bound - 1);
     private String prefix;
+    private final List<String> messages = new ArrayList<>();
 
     @Override public void onEnable() {
         Bukkit.getScheduler().runTaskLater(this, () -> {
@@ -78,6 +82,7 @@ public final class ServerTests extends JavaPlugin {
             case "hasPermission" -> args[0].equals("slowmending.bypass") ? bypass : true;
             case "getName" -> "SlowMendingTest";
             case "getUniqueId" -> new UUID(0, 1);
+            case "sendMessage" -> { if (args[0] instanceof String message) messages.add(message); yield null; }
             default -> null;
         });
 
@@ -136,6 +141,22 @@ public final class ServerTests extends JavaPlugin {
         var exemptEvent = mend(exempt);
         failure.onPlayerPlayerItemMend(exemptEvent);
         check(!exemptEvent.isCancelled() && count(exempt) == -2, "-2 bypasses chance");
+        for (int value : List.of(-1, -2, -3, 0)) {
+            ItemStack legacyMode = tool();
+            meta = legacyMode.getItemMeta();
+            meta.setLore(List.of(prefix + value));
+            legacyMode.setItemMeta(meta);
+            success.onPlayerPlayerItemMend(mend(legacyMode));
+            check(count(legacyMode) == value, "old numeric mode retained: " + value);
+            check(legacyMode.getItemMeta().getLore().equals(List.of(prefix + MendCount.format(value))),
+                    "old mode lore replaced with words: " + value);
+            check(count(ItemStack.deserializeBytes(legacyMode.serializeAsBytes())) == value,
+                    "readable mode survives serialization: " + value);
+            ItemStack setCard = CreateCard.createCard(true, value);
+            check(setCard.getItemMeta().getLore().stream().anyMatch(line -> line.endsWith(MendCount.format(value))),
+                    "set card displays named state: " + value);
+            check(new ExpansionCard(setCard.getItemMeta()).isCard(), "readable set card keeps numeric PDC: " + value);
+        }
         for (int value : List.of(0, -3)) {
             var blocked = mend(itemWithCount(value));
             success.onPlayerPlayerItemMend(blocked);
@@ -196,6 +217,27 @@ public final class ServerTests extends JavaPlugin {
         check(count(offhand) == 4 && storage.getItem(0).getAmount() == 2, "denied item use respected");
         listener.onPlayerInteract(interact(card, EquipmentSlot.HAND));
         check(count(offhand) == 9 && storage.getItem(0).getAmount() == 1, "card consumed exactly once");
+
+        ItemStack deduction = CreateCard.createCard(false, -1);
+        check(deduction.getItemMeta().getLore().stream().anyMatch(line -> line.endsWith("减少 1 次")),
+                "negative add card displays a deduction");
+        storage.setItem(0, deduction);
+        listener.onPlayerInteract(interact(deduction, EquipmentSlot.HAND));
+        check(count(offhand) == 8, "readable negative add card deducts instead of granting unlimited mode");
+        storage.setItem(0, CreateCard.createCard(true, -1));
+        listener.onPlayerInteract(interact(storage.getItem(0), EquipmentSlot.HAND));
+        check(count(offhand) == -1 && messages.get(messages.size() - 1).endsWith(MendCount.format(-1)),
+                "set card applies unlimited mode and reports it in words");
+
+        var completer = new CommandTabCompleter();
+        var setChoices = completer.onTabComplete(player, null, "slmend", new String[]{"set", "SlowMendingTest", ""});
+        check(setChoices.containsAll(List.of("无限", "无限不减速", "禁用")) && !setChoices.contains("-1"),
+                "set completion suggests named states");
+        var addChoices = completer.onTabComplete(player, null, "slmend", new String[]{"add", "SlowMendingTest", ""});
+        check(addChoices.contains("-1") && !addChoices.contains("无限"), "add completion suggests numeric deltas");
+        new SLMCommand().onCommand(player, null, "slmend", new String[]{"help"});
+        check(messages.stream().anyMatch(message -> message.contains("<次数|无限|无限不减速|禁用>")),
+                "existing help configuration receives named-state instructions");
 
         meta = card.getItemMeta();
         meta.setLore(List.of("cosmetic text changed"));

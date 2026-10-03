@@ -22,7 +22,7 @@ public final class CreateCard {
         meta.setDisplayName(ExpansionCard.name);
         var lore = new ArrayList<>(ExpansionCard.usage);
         lore.add(isSet ? ExpansionCard.setModeText : ExpansionCard.addModeText);
-        lore.add(ExpansionCard.frequencyText + num);
+        lore.add(ExpansionCard.frequencyText + (isSet ? MendCount.format(num) : MendCount.formatDelta(num)));
         meta.setLore(lore);
         meta.getPersistentDataContainer().set(ExpansionCard.MODE, PersistentDataType.BYTE, (byte) (isSet ? 1 : 0));
         meta.getPersistentDataContainer().set(ExpansionCard.FREQUENCY, PersistentDataType.INTEGER, num);

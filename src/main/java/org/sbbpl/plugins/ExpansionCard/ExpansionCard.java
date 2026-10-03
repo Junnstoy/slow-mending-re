@@ -106,7 +106,7 @@ public class ExpansionCard {
                 }
             }
             MendCount.validate(result);
-            if (result < 0 && !allowSpecial) throw new IllegalArgumentException("当前不允许设置特殊次数。");
+            if (result < 0 && !allowSpecial) throw new IllegalArgumentException("当前不允许通过拓展卡设置无限次数或禁用修补。");
             int maximum = Slow_mending_re.getMax_Mend_Limit_Number();
             if (!allowBeyond && maximum >= 0 && result > maximum) {
                 throw new IllegalArgumentException("次数不能超出配置上限。");
@@ -124,7 +124,7 @@ public class ExpansionCard {
             player.getInventory().setItemInOffHand(target);
             card.setAmount(card.getAmount() - 1);
             player.getInventory().setItemInMainHand(card);
-            player.sendMessage("§b剩余修补次数：" + result);
+            player.sendMessage("§b剩余修补次数：" + MendCount.format(result));
             return true;
         } catch (IllegalArgumentException e) {
             player.sendMessage("§c" + e.getMessage());

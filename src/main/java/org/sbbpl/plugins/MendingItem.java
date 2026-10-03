@@ -46,8 +46,8 @@ public final class MendingItem {
             for (String candidate : prefixes(prefix, oldNames, null)) {
                 if (line.startsWith(candidate)) {
                     try {
-                        return MendCount.validate(Integer.parseInt(line.substring(candidate.length()).trim()));
-                    } catch (NumberFormatException e) {
+                        return MendCount.parseSetting(line.substring(candidate.length()));
+                    } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("物品 Lore 中的修补次数无效。", e);
                     }
                 }
@@ -79,7 +79,7 @@ public final class MendingItem {
         List<Component> lore = meta.lore() == null ? new ArrayList<>() : new ArrayList<>(meta.lore());
         lore.removeIf(line -> recognized.stream().anyMatch(
                 candidate -> LegacyComponentSerializer.legacySection().serialize(line).startsWith(candidate)));
-        lore.add(LegacyComponentSerializer.legacySection().deserialize(prefix + value));
+        lore.add(LegacyComponentSerializer.legacySection().deserialize(prefix + MendCount.format(value)));
         meta.lore(lore);
         data.set(REMAINING, PersistentDataType.INTEGER, value);
         data.set(LORE_PREFIX, PersistentDataType.STRING, prefix);

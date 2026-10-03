@@ -2,6 +2,8 @@ package org.sbbpl.plugins;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,6 +24,13 @@ class LegacyAndConfigTest {
 
     @Test void toleratesNullOldNameListAndWhitespace() throws Exception {
         assertEquals(12, MendingItem.readLegacyCount(List.of("mends: 12 "), "mends:", null));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-3, -2, -1, 0, 1, Integer.MAX_VALUE})
+    void readsBothNumericAndReadableLoreWithoutPersistentData(int value) throws Exception {
+        assertEquals(value, MendingItem.readLegacyCount(List.of("old:" + value), "new:", List.of("old:")));
+        assertEquals(value, MendingItem.readLegacyCount(List.of("old:" + MendCount.format(value)), "new:", List.of("old:")));
     }
 
     @Test void doesNotCoerceMalformedConfigurationIntoZeroOrFalse() {

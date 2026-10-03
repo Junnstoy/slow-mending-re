@@ -17,7 +17,7 @@ from pathlib import Path
 def download(url, destination, sha256):
     if not destination.is_file():
         request = urllib.request.Request(url, headers={
-            "User-Agent": "SlowMendingCompatibility/2.2.1 (https://github.com/Junnstoy/slow-mending-re)"
+            "User-Agent": "SlowMendingCompatibility/2.2.2 (https://github.com/Junnstoy/slow-mending-re)"
         })
         with urllib.request.urlopen(request, timeout=60) as response, destination.open("wb") as output:
             shutil.copyfileobj(response, output)

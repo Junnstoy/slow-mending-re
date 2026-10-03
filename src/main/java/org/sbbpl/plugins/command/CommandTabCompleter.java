@@ -8,6 +8,7 @@ import org.sbbpl.plugins.Slow_mending_re;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.ArrayList;
 
 public class CommandTabCompleter implements TabCompleter {
     @Override
@@ -22,9 +23,13 @@ public class CommandTabCompleter implements TabCompleter {
                 || (args.length == 4 && List.of("set", "add").contains(sub))) choices = List.of("main", "off");
         else if (args.length == 5 && sub.equals("givecard")) choices = List.of("set", "add");
         else if (args.length == 3 && sub.equals("givecard")) choices = List.of("1", "16", "64");
-        else if ((args.length == 3 && List.of("set", "add").contains(sub))
+        else if (args.length == 3 && sub.equals("add")) choices = List.of("1", "10", "100", "-1", "-10");
+        else if ((args.length == 3 && sub.equals("set"))
                 || (args.length == 4 && sub.equals("givecard"))) {
-            choices = List.of("0", "1", "-1", "-2", "-3", String.valueOf(Slow_mending_re.getMax_Mend_Limit_Number()));
+            choices = new ArrayList<>(List.of("0", "1", "100", "无限", "无限不减速", "禁用",
+                    "unlimited", "unlimited-fast", "disabled"));
+            int initial = Slow_mending_re.getMax_Mend_Limit_Number();
+            if (initial > 0) choices.add(Integer.toString(initial));
         }
         String prefix = args[args.length - 1].toLowerCase(Locale.ROOT);
         return choices.stream().filter(s -> s.toLowerCase(Locale.ROOT).startsWith(prefix)).distinct().toList();
