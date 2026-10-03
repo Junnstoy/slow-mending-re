@@ -41,8 +41,8 @@ public class SLMCommand implements CommandExecutor {
                         sender.sendMessage("§c重载失败，保留之前的有效配置：" + e.getMessage());
                     }
                 }
-                case "version" -> sender.sendMessage("§bSlow Mending Re " + plugin.getPluginMeta().getVersion()
-                        + " | Paper 26.3 | 原作者 super_boy_520");
+                case "version" -> sender.sendMessage("§bSlow Mending Re " + plugin.getDescription().getVersion()
+                        + " | Paper 1.20–26.3 | 原作者 super_boy_520");
                 case "set", "add", "info" -> edit(sender, sub, args);
                 case "givecard" -> {
                     require(args.length == 5, "/slmend givecard <player> <quantity> <frequency> <set|add>");

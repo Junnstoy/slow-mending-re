@@ -25,13 +25,14 @@ import org.sbbpl.plugins.ExpansionCard.*;
 import org.sbbpl.plugins.command.commands.com_give;
 
 import java.lang.reflect.Proxy;
+import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
-/** Run only on a disposable local Paper server. Automatically stops that server. */
+/** Same Java 17 test JAR runs on disposable Paper 1.20–26.3 servers and stops them afterwards. */
 public final class ServerTests extends JavaPlugin {
     private int assertions;
     private Inventory storage;
@@ -305,7 +306,16 @@ public final class ServerTests extends JavaPlugin {
 
     private PlayerItemMendEvent mend(ItemStack item) {
         ExperienceOrb orb = proxy(ExperienceOrb.class, (method, args) -> method.equals("getExperience") ? 1 : null);
-        return new PlayerItemMendEvent(player, item, EquipmentSlot.HAND, orb, 2, 1);
+        try {
+            // Modern Paper adds explicit consumed XP; old Paper exposes the five-argument constructor.
+            Constructor<PlayerItemMendEvent> modern = PlayerItemMendEvent.class.getConstructor(
+                    Player.class, ItemStack.class, EquipmentSlot.class, ExperienceOrb.class, int.class, int.class);
+            return modern.newInstance(player, item, EquipmentSlot.HAND, orb, 2, 1);
+        } catch (NoSuchMethodException oldPaper) {
+            return new PlayerItemMendEvent(player, item, EquipmentSlot.HAND, orb, 2);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Unable to construct test mending event", e);
+        }
     }
 
     private PlayerInteractEvent interact(ItemStack item, EquipmentSlot hand) {

@@ -3,8 +3,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sbbpl</groupId>
-  <version>2.2.0</version>
-  <properties><maven.compiler.release>25</maven.compiler.release><project.build.sourceEncoding>UTF-8</project.build.sourceEncoding></properties>
+  <version>2.2.1</version>
+  <properties><maven.compiler.release>17</maven.compiler.release><project.build.sourceEncoding>UTF-8</project.build.sourceEncoding></properties>
   <repositories><repository><id>papermc</id><url>https://repo.papermc.io/repository/maven-public/</url></repository></repositories>
   <build>
     <resources><resource><directory>src/main/resources</directory><filtering>true</filtering></resource></resources>
@@ -15,7 +15,7 @@
   </build>
   <artifactId>slow-mending-server-tests</artifactId>
   <dependencies>
-    <dependency><groupId>io.papermc.paper</groupId><artifactId>paper-api</artifactId><version>26.3.build.143-beta</version><scope>provided</scope></dependency>
+    <dependency><groupId>io.papermc.paper</groupId><artifactId>paper-api</artifactId><version>1.20-R0.1-SNAPSHOT</version><scope>provided</scope></dependency>
     <dependency><groupId>org.sbbpl</groupId><artifactId>slow-mending-re</artifactId><version>${project.version}</version><scope>provided</scope></dependency>
   </dependencies>
 </project>

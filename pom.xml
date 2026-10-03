@@ -4,12 +4,12 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sbbpl</groupId>
   <artifactId>slow-mending-re</artifactId>
-  <version>2.2.0</version>
+  <version>2.2.1</version>
   <name>Slow Mending Re</name>
   <properties>
-    <maven.compiler.release>25</maven.compiler.release>
+    <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <paper.version>26.3.build.143-beta</paper.version>
+    <paper.version>1.20-R0.1-SNAPSHOT</paper.version>
   </properties>
   <repositories>
     <repository>

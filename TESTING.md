@@ -1,16 +1,42 @@
-# 26.3 适配验证
+# Paper 1.20–26.3 兼容验证
 
-验证日期：2026-10-03。
+验证日期：2026-10-03。版本 **2.2.1** 使用同一个插件 JAR 和同一个 Java 17 测试插件，完成下列全部服务端测试。
 
-| 项目 | 结果 |
-| --- | --- |
-| Java | Temurin 25.0.4.1 |
-| 服务端 | Paper 26.3 build 143，提交 ff3655a |
-| Paper API | 26.3.build.143-beta |
-| Maven | 3.9.9 |
-| 单元测试 | 17 项通过，0 失败 / 0 错误 |
-| 隔离服务端回归 | 46 项断言通过 |
-| 插件启用 / 禁用 | 成功，无插件异常 |
+- 编译 API：`paper-api:1.20-R0.1-SNAPSHOT`（时间戳 `1.20-R0.1-20230613.000034-20`）。
+- 插件 class major version：**61（Java 17）**，所有主插件类一致。
+- 本地构建：Maven 3.9.9 / Temurin 25.0.4.1，使用 `--release 17`。
+- 单元测试：**17 项通过，0 失败 / 0 错误**。
+- 服务端回归：**21 个版本，每个 46 项断言通过，共 966 项**。
+- 运行时：OpenJDK 17.0.20、Temurin 21.0.12.1、Temurin 25.0.4.1。
+- 所有测试服均只监听 `127.0.0.1`，使用独立的新世界，测试结束自动关闭。
+
+| Paper 版本 | 构建号 | Java | 回归断言 |
+| --- | --- | --- | --- |
+| 1.20 | 17 | 17 | 46 / 46 |
+| 1.20.1 | 196 | 17 | 46 / 46 |
+| 1.20.2 | 318 | 17 | 46 / 46 |
+| 1.20.4 | 499 | 17 | 46 / 46 |
+| 1.20.5 | 22 | 21 | 46 / 46 |
+| 1.20.6 | 151 | 21 | 46 / 46 |
+| 1.21 | 130 | 21 | 46 / 46 |
+| 1.21.1 | 133 | 21 | 46 / 46 |
+| 1.21.3 | 83 | 21 | 46 / 46 |
+| 1.21.4 | 232 | 21 | 46 / 46 |
+| 1.21.5 | 114 | 21 | 46 / 46 |
+| 1.21.6 | 48 | 21 | 46 / 46 |
+| 1.21.7 | 32 | 21 | 46 / 46 |
+| 1.21.8 | 60 | 21 | 46 / 46 |
+| 1.21.9 | 59 | 21 | 46 / 46 |
+| 1.21.10 | 130 | 21 | 46 / 46 |
+| 1.21.11 | 132 | 21 | 46 / 46 |
+| 26.1.1 | 29 | 25 | 46 / 46 |
+| 26.1.2 | 74 | 25 | 46 / 46 |
+| 26.2 | 129 | 25 | 46 / 46 |
+| 26.3 | 143 | 25 | 46 / 46 |
+
+本次矩阵包括查询时官方可获取的该范围内 21 个不带预发布版本后缀的版本。没有独立可下载构建的版本（例如 1.20.3、1.21.2、26.1）不单独声明实测。部分较早版本的最后一个 Paper 构建仍标记 ALPHA；上表记录的是实际测试构建。
+
+机器可读的结果和被测 JAR SHA-256 见 [results-2.2.1.json](integration-tests/results-2.2.1.json)，官方构建地址与校验值见 [matrix.json](integration-tests/matrix.json)。
 
 ## 测试覆盖
 
@@ -25,23 +51,32 @@
 - 发卡堆叠拆分、保留主手、满背包整次拒绝。
 - 无效配置拒绝且保留当前设置，拓展卡功能可重载开关且不重复注册。
 
-服务端测试使用真实 Paper 的物品、PDC、序列化、背包和事件分发实现；玩家及经验球通过接口测试替身提供。它验证插件在真实 26.3 API 下的加载与逻辑，不包含真实客户端拾取经验球、长期多人负载或其他插件组合测试。
+服务端测试使用真实 Paper 的物品、PDC、序列化、背包和事件分发实现；玩家及经验球通过接口测试替身提供。它验证插件在所列真实 Paper 版本的 API 下的加载与逻辑，不包含真实客户端拾取经验球、长期多人负载或其他插件组合测试。
 
-## 单元测试与构建
+
+## 构建
 
 ```sh
 mvn --batch-mode clean install
-mvn --batch-mode -f integration-tests/pom.xml package
+mvn --batch-mode -f integration-tests/pom.xml clean package
 ```
 
-## 重现隔离服务端测试
+主插件：`target/slow-mending-re-2.2.1.jar`。GitHub Actions 分别以 JDK 17、21、25 构建并运行单元测试，上传一个 Java 17 字节码的通用插件产物。
 
-`integration-tests` 是开发测试插件，会在执行后自动停止服务端，仅用于新建的临时测试目录。正式服只安装主插件 JAR。
+## 重现服务端矩阵
 
-1. 在新的测试目录放入官方 Paper 26.3 build 143 的服务端 JAR。
-2. 将 `target/slow-mending-re-2.2.0.jar` 和 `integration-tests/target/slow-mending-server-tests-2.2.0.jar` 放入该目录的 `plugins/`。
-3. 按服务端要求设置 `eula.txt`。`server.properties` 设置 `server-ip=127.0.0.1`、未占用的端口、`online-mode=false`、`view-distance=2`、`simulation-distance=2`。
-4. Java 25 执行 `java -Xms256M -Xmx1024M -Dterminal.jline=false -jar paper-26.3-143.jar --nogui`。
-5. 检查 `slow-mending-test-result.txt` 为 `PASS 46 assertions`，日志含 `SERVER TESTS PASSED`。
+测试器会下载并校验固定的官方 Paper 构建和对应 Mojang JAR。它只使用新建的测试目录；已有版本测试目录不会被覆盖。先阅读并接受 Minecraft EULA，再使用：
 
-隔离环境启动时 Mojang 服务发现可能因网络不可达产生警告；这与插件逻辑测试无关。GitHub Actions 执行单元测试、构建主插件及编译服务端测试插件；不自动启动服务端测试。
+```sh
+python3 integration-tests/run_matrix.py \
+  --java17 /path/to/jdk17/bin/java \
+  --java21 /path/to/jdk21/bin/java \
+  --java25 /path/to/jdk25/bin/java \
+  --work-dir /tmp/slow-mending-matrix-new \
+  --cache-dir /tmp/slow-mending-downloads \
+  --accept-eula
+```
+
+可加 `--versions 1.20 1.20.6 1.21.11 26.3` 只测指定版本；默认覆盖全部 21 个版本。结果保存在工作目录的 `results.json`，每个版本的日志在 `<版本>/console.log`。测试器可选择 1–4 个并发进程，每个服务端堆上限 1 GiB，默认并发 2 个。
+
+`integration-tests` JAR 会自动执行测试并关闭服务端，正式服只安装主插件。隔离环境内 Mojang 认证、服务发现或 Paper 版本检查可能因外网不可达打印错误；结果中区分这些服务端外部请求与插件加载/回归结果。CI 不自动运行此服务端矩阵。

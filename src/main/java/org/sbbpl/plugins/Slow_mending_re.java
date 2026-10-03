@@ -161,7 +161,7 @@ public final class Slow_mending_re extends JavaPlugin implements CommandExecutor
         var command = Objects.requireNonNull(getCommand("slowmending"));
         command.setExecutor(new SLMCommand());
         command.setTabCompleter(new CommandTabCompleter());
-        getLogger().info("Slow Mending Re " + getPluginMeta().getVersion() + " 已加载。");
+        getLogger().info("Slow Mending Re " + getDescription().getVersion() + " 已加载。");
     }
 
     @Override

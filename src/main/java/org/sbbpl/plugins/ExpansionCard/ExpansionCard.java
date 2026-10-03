@@ -58,7 +58,7 @@ public class ExpansionCard {
         }
         if (!acceptLegacy || !meta.hasLore()) return;
         List<String> lore = meta.getLore();
-        if (lore == null || lore.isEmpty() || !identifier.equals(lore.getFirst())) return;
+        if (lore == null || lore.isEmpty() || !identifier.equals(lore.get(0))) return;
         int modes = 0, values = 0;
         try {
             for (String line : lore) {

@@ -4,10 +4,10 @@
 
 ![mendingitem](img/mendingitem.png)
 
-## 2.2.0 / Minecraft 26.3
+## 2.2.1 / Minecraft 1.20–26.3
 
-- 目标服务端：**Paper 26.3**；构建 API 固定为 `26.3.build.143-beta`。
-- 构建及运行使用 **Java 25**。当前版本不声明旧版 Bukkit/Spigot 或 Folia 兼容性。
+- 同一个 JAR 面向 **Paper 1.20–26.3**，基于范围内最早的 `paper-api:1.20-R0.1-SNAPSHOT` 编译，不使用 NMS 或 CraftBukkit 内部类。
+- 插件使用 **Java 17 字节码**，可在 Java 17 / 21 / 25 上加载；服务端本身的 Java 要求仍须满足。此版本使用 Paper 的 Adventure 物品文本 API，不声明纯 Spigot、CraftBukkit 或 Folia 兼容性。
 - 保留 `slow_mending_re` 插件名称、原配置目录、原命令及 `-1/-2/-3` 特殊次数含义。
 - 次数及新拓展卡使用 PDC 存储。兼容旧 Lore 次数、旧前缀及完整的旧版拓展卡。
 - 修复空手交互、双手重复触发、首次自定义 Lore 物品重复扣次、发卡覆盖物品、异常配置及整数溢出。
@@ -15,8 +15,8 @@
 
 ## 安装 / 升级
 
-1. 停服，将 `plugins` 内旧版插件 JAR 替换为 `slow-mending-re-2.2.0.jar`，保留原来的 `plugins/slow_mending_re/` 配置目录。
-2. 使用 Java 25 启动 Paper 26.3。
+1. 停服，将 `plugins` 内旧版插件 JAR 替换为 `slow-mending-re-2.2.1.jar`，保留原来的 `plugins/slow_mending_re/` 配置目录。
+2. 按服务端版本选择 Java：1.20–1.20.4 使用 Java 17；1.20.5–1.21.11 使用 Java 21；26.x 使用 Java 25。
 3. 配置缺少新增选项时会使用默认值，已有配置文件不会被覆盖。
 
 旧装备在下次修补或通过命令/拓展卡修改时迁移至 PDC。仅查询 `info` 不修改物品。尚未迁移的旧物品依赖 Lore 前缀识别；若要修改前缀，请把旧前缀加入 `Old_Mend_Frequency_Lore_Name`。迁移后的物品会记住显示前缀，再修改配置不会重置次数。
@@ -24,6 +24,18 @@
 新版本补充次数会恢复由本版本添加破损前缀前的名称，保留丰富文本；若玩家之后在铁砧改名，则保留玩家的新名称。旧版本已经改名的物品未保存原名称，无法可靠自动还原。
 
 下载：[GitHub Actions 构建产物](https://github.com/Junnstoy/slow-mending-re/actions/workflows/build.yml)。从成功构建的 Artifacts 下载插件 JAR。
+
+## 版本兼容说明
+
+| 服务端范围 | 测试运行时 | 同一插件 JAR |
+| --- | --- | --- |
+| Paper 1.20–1.20.4 | Java 17 | 支持 |
+| Paper 1.20.5–1.21.11 | Java 21 | 支持 |
+| Paper 26.1.x–26.3 | Java 25 | 支持 |
+
+`api-version: '1.20'` 表示插件使用的最低 API，不是把新服务端降级为 1.20。Java 17 字节码也不代表新服务端能用 Java 17 启动。Paper 兼容分支可按其自身的 API/Java 要求使用，完整实测范围以 [TESTING.md](TESTING.md) 为准。
+
+2.2.0 曾使用 26.3 API 和 Java 25，不能用于旧服；需要跨版本支持请更换为 2.2.1。PDC 键及配置路径没有变化，可以直接保留 2.2.0 的插件数据。插件支持多个版本并不意味着 Minecraft 世界或物品格式支持降级。
 
 ## 配置与计数规则
 
@@ -95,4 +107,4 @@ ExpansionCard:
 mvn --batch-mode clean verify
 ```
 
-产物：`target/slow-mending-re-2.2.0.jar`。测试说明见 [TESTING.md](TESTING.md)，更新记录见 [CHANGELOG.md](CHANGELOG.md)。
+产物：`target/slow-mending-re-2.2.1.jar`。测试说明见 [TESTING.md](TESTING.md)，更新记录见 [CHANGELOG.md](CHANGELOG.md)。
